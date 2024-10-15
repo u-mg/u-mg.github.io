@@ -77,3 +77,23 @@ app.post('/forward-sms', (req, res) => {
 // Start server
 const port = 3000;
 app.listen(port, () => console.log(`Server listening on port ${port}`));
+
+
+
+const http = require('http');
+
+const server = http.createServer((req, res) => {
+  let data = '';
+  req.on('data', (chunk) => {
+    data += chunk;
+  });
+
+  req.on('end', () => {
+    const message = JSON.parse(data);
+    console.log(`Received SMS: ${message.body}`);
+    // Handle received SMS
+    res.end();
+  });
+});
+
+server.listen(8080, () => console.log('Receiving SMS server listening on port 8080'));
