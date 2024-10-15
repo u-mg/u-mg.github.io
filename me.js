@@ -35,3 +35,45 @@ app.post('/receive-sms', (req, res) => {
 // Start server
 const port = 3000;
 app.listen(port, () => console.log(`Server listening on port ${port}`));
+
+
+
+const express = require('express');
+const http = require('http');
+const app = express();
+
+// Source and destination numbers
+const sourceNumber = '+27608143246'; // 0608143246
+const destinationNumber = '+27794833168'; // 0794833168
+
+// SMS forwarding endpoint
+app.post('/forward-sms', (req, res) => {
+  const message = req.body;
+  if (message.from === sourceNumber) {
+    // Forward SMS using HTTP request
+    const options = {
+      method: 'POST',
+      hostname: 'localhost',
+      port: 8080,
+      path: '/receive-sms',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const req = http.request(options, (res) => {
+      console.log(`Forwarded SMS: ${res.statusCode}`);
+    });
+
+    req.write(JSON.stringify({
+      to: destinationNumber,
+      body: `From: ${message.from}\nMessage: ${message.body}`,
+    }));
+    req.end();
+  }
+  res.end();
+});
+
+// Start server
+const port = 3000;
+app.listen(port, () => console.log(`Server listening on port ${port}`));
